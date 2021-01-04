@@ -19,11 +19,9 @@ This module has utility functions to train and evaluate proposed survival
 analysis models including,
 
 1) Cox Mixtures: Involves learning
-
 2) Deep Cox Mixtures: Involves learning shared representations via the use
    of a Multilayer Perceptron, followed by a Gating function that determines
    latent Z as well as the group (Z) specific Cox model.
-
 3) Deep Cox Mixtures-VAE: Similar to Deep Cox Mixtures, but uses a VAE to
    learn the latent representation instead of an MLP.s
 
@@ -38,6 +36,8 @@ import copy
 
 from dcm import dcm_tf as dcmt
 import numpy as np
+
+import logging
 
 
 def train_model(x, t, e, a, folds, groups, params):
@@ -74,14 +74,16 @@ def train_model(x, t, e, a, folds, groups, params):
   h = params.get('HIDDEN', 100)
   lr = params.get('lr', 1e-3)
   bs = params.get('bs', 128)
+  epochs = params.get('epochs', 50)
   model = params.get('model', 'deep_cox_mixture')
   use_posteriors = params.get('use_posteriors', False)
-  
-  print('Training ', model, ' model... Please be Patient...!')
+
+
+  logging.info('Training ' + str(model) + ' model... Please be Patient...!')
 
   for f in set(folds):
 
-    print('On fold:', f+1)
+    logging.info('On fold: ' + str(f+1))
 
     xf = x[folds != f]
     tf = t[folds != f]
@@ -98,15 +100,15 @@ def train_model(x, t, e, a, folds, groups, params):
       trained_model = dcmt.train(trained_model, xf[~vidx],
                                  tf[~vidx], ef[~vidx], af[~vidx],
                                  xf[vidx], tf[vidx], ef[vidx],
-                                 af[vidx], epochs=50, lr=lr, bs=bs,
+                                 af[vidx], epochs=epochs, lr=lr, bs=bs,
                                  use_posteriors=use_posteriors)
-                                 
+
     if model == 'deep_cox_mixture':
       trained_model = dcmt.DeepCoxMixture(k, h)
       trained_model = dcmt.train(trained_model, xf[~vidx],
                                  tf[~vidx], ef[~vidx], af[~vidx],
                                  xf[vidx], tf[vidx], ef[vidx],
-                                 af[vidx], epochs=50, lr=lr, bs=bs,
+                                 af[vidx], epochs=epochs, lr=lr, bs=bs,
                                  use_posteriors=use_posteriors)
     
     if model == 'cox_mixture':
@@ -114,7 +116,7 @@ def train_model(x, t, e, a, folds, groups, params):
       trained_model = dcmt.train(trained_model, xf[~vidx],
                                  tf[~vidx], ef[~vidx], af[~vidx],
                                  xf[vidx], tf[vidx], ef[vidx],
-                                 af[vidx], epochs=50, lr=lr, bs=bs,
+                                 af[vidx], epochs=epochs, lr=lr, bs=bs,
                                  use_posteriors=use_posteriors)
 
     fold_model[f] = copy.copy(trained_model)
@@ -152,9 +154,7 @@ def predict_scores(trained_model, groups, x, a, folds, quant):
   for fold in set(folds):
     
     xf = x[folds == fold]
-    
-    print (type(trained_model[0][0]).__name__)
-    
+        
     if type(trained_model[0][0]).__name__ in ['DeepCoxMixture',
                                               'DeepCoxMixtureVAE',
                                               'CoxMixture'] :

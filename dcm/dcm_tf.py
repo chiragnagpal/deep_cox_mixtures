@@ -1,3 +1,35 @@
+# coding=utf-8
+# Copyright 2020 The Google Research Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Tensorflow 2 implementation of the Deep Cox Mixture model.
+
+This module includes tensorflow implementation of the following models:
+
+1) Cox Mixture
+2) Deep Cox Mixture
+3) Deep Cox Mixture-VAE
+
+TODO: Add docstrings,
+      modularize code for DCM to inherit from CM and,
+      DCM-VAE to inherit from DCM.
+
+Not designed to be called directly, would be called when running
+dcm.deep_cox_mixture.experiment
+
+"""
+
 import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense
@@ -8,6 +40,8 @@ from scipy.interpolate import UnivariateSpline
 from sksurv.linear_model.coxph import BreslowEstimator   
 
 from tqdm import tqdm 
+
+import logging
 
 tf.keras.backend.set_floatx('float32')
 dtype = tf.float32
@@ -375,8 +409,7 @@ def train_step(model, x, t, e, a, breslow_splines, optimizer,
         else:
           breslow_splines = fit_breslow(model, x, t, e, posteriors=None)
     except Exception as exce:
-      print (exce)
-      print("Couldn't fit splines, reusing from previous epoch")
+      logging.warning("Couldn't fit splines, reusing from previous epoch")
     epoch_loss+=loss
   #print (epoch_loss/n)
   return breslow_splines
@@ -393,8 +426,8 @@ def train(model, xt, tt, et, at, xv, tv, ev, av, epochs=50,
           patience=2, vloss='q', bs=256, typ='soft', lr=1e-3,
           use_posteriors=False, debug=False):
     
-  print("Running Monte-Carlo EM for", epochs,
-        "epochs with a batch size of ", bs)
+  logging.info("Running Monte-Carlo EM for: " + str(epochs) +
+               " epochs; with a batch size of: "+ str(bs))
 
   optimizer = tf.keras.optimizers.Adam(lr=lr)
 

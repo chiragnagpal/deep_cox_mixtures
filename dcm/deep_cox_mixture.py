@@ -40,6 +40,8 @@ import pandas as pd
 
 import os
 
+import logging
+
 from sklearn.decomposition import PCA
 
 
@@ -53,14 +55,14 @@ def store_model(dataset, model, trained_model, params):
 
   if model == 'dcm':
         
-    print ("Saving DCM")
+    logging.info("Saving DCM")
     existing = os.listdir(path)
     count = max([0]+[int(f[:-4]) for f in existing])+1
     trained_model.save(path+str(count)+'.pkl')
 
   elif model == 'rsf':
         
-    print ("Saving RSF")
+    logging.info("Saving RSF")
         
     existing = os.listdir(path)
     count = max([0]+[int(f) for f in existing])+1
@@ -111,7 +113,7 @@ def load_dataset(dataset, cv_folds, prot_att, fair_strategy, quantiles, dim_red=
   quantiles = np.quantile(t[e == 1], quantiles)
   
   if dim_red:
-      print ("Running PCA, Please Stand by...")
+      logging.info("Running PCA, Please Stand by...")
       x = PCA(n_components=dim_red).fit_transform(x)
       print (x.shape)
   return (x, t, e, a), folds, quantiles
@@ -178,9 +180,9 @@ def baseline_experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75),
                                                        params=params)
   else:
     trained_model = baseline_models.train_model(x, t, e, folds, model=model, params=params)
-    print ("All Folds Trained...")
+    logging.info("All Folds Trained...")
   if store:
-    print ("Storing Models...")
+    logging.info("Storing Models...")
     store_model(dataset, model, trained_model, params)
   
   outputs = predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy)
@@ -189,7 +191,7 @@ def baseline_experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75),
     results = plots.plot_results(outputs, x, e, t, a, folds,
                        groups, quantiles, strat='quantile', adj=adj)
 
-  return trained_model, outputs
+  return results
 
 def experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75), prot_att='race',
                groups=('black', 'white'), model='dcm', adj='KM',
@@ -254,7 +256,7 @@ def experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75), prot_att='race',
 
     results = plots.plot_results(outputs, x, e, t, a, folds, groups,
                        quantiles, strat='quantile', adj=adj)
-    return outputs
+    return results
     
 
 def predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy):
@@ -270,3 +272,50 @@ def predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy):
                                                      fair_strategy, x, a, folds,
                                                      quant)
   return outputs
+
+def display_results(results):
+  """Helper function to pretty print the results from experiment. 
+  
+  Args:
+    results: output of dcm.deep_cox_mixtures.experiment or 
+             dcm.deep_cox_mixtures.baseline_experiment   
+  
+  """
+    
+  quantiles = results.keys()
+  metrics = ['AuC', 'Ctd', 'BrS', 'ECE']
+  
+  for quant in quantiles:
+    
+    print("".join(["-"]*11*4))
+    print("Event Horizon:", quant)
+    print("".join(["-"]*11*4))
+    print("{: <8}".format(""), end="  |")
+    
+    groups = results[quant][0]
+    
+    print("{: <30}".format("           Groups"), end="  |")
+    print("")
+    print("".join(["-"]*11*4))
+
+    print("{: <8}".format("Metric"), end="  |")
+
+    for group in groups:
+      print("{: >8}".format(group), end="  |")
+    
+    print()
+    print("".join(["-"]*11*4))
+    
+    i = 0
+    for metric in metrics: 
+      print()
+      print("{: <8}".format(metric), end="  |")
+      
+      for group in groups:
+        print("{: >8}".format(round(results[quant][i][group], 5)),  end="  |" )
+
+      
+      i+=1
+    print()
+    print("".join(["-"]*11*4))
+    print()

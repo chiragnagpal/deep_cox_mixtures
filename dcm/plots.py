@@ -37,6 +37,9 @@ from dcm.skmetrics import concordance_index_ipcw
 
 import numpy as np
 
+import logging
+logging.getLogger("matplotlib").setLevel(logging.CRITICAL)
+
 from sklearn.metrics import auc
 
 
@@ -120,8 +123,6 @@ def plot_calibration_curve(ax,
       ret_bins=True,
       strat=strat,
       n_bins=n_bins)
-
-  print ("ECE:", ece)
   
   for d in range(len(prob_true_n)):
 
@@ -400,7 +401,7 @@ def plot_results(outputs, x, e, t, a, folds, groups,
       "IPCW": Inverse Propensity of Censoring
 
   Returns:
-    a numpy vector of risks P(T>t) at the horizon "quant".
+    a numpy vector of estimated risks P(T>t|X) at the horizon "quant".
 
   """
   if plot:
@@ -480,6 +481,10 @@ def plot_results(outputs, x, e, t, a, folds, groups,
                                         groups,
                                         quantiles[i],
                                         plot=plot)
+
+  for quant in quantiles:
+    metrics[quant] = metrics[quant] + (eces[quant], )
+  
   if plot:      
       plt.show()
-  return eces, metrics
+  return metrics

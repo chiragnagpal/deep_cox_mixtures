@@ -10,6 +10,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# This module was adapted from Scikit-Survival python package to
+# extract the adjusted TPR and FPR rates for all classification
+# thresholds for the censoring adjusted ROC curve. It depends on
+# Scikit-Survival. For the full package please check: 
+# https://github.com/sebp/scikit-survival
+
 import numpy
 from scipy.integrate import trapz
 from sklearn.utils import check_consistent_length, check_array
