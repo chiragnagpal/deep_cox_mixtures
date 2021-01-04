@@ -1,1 +1,3 @@
-# deep_cox_mixtures
+# Deep Cox Mixtures
+
+Code for the paper: Deep Cox Mixtures for Survival Regression
