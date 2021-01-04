@@ -1,6 +1,6 @@
 # Deep Cox Mixtures
 
-Code for the paper: Deep Cox Mixtures for Survival Regression
+This repository contains code for the paper: 'Deep Cox Mixtures for Survival Regression'
 
 ### Usage
 ```
