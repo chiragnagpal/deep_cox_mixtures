@@ -9,6 +9,6 @@ results = deep_cox_mixture.experiment(dataset='SUPPORT', prot_att='race', groups
 deep_cox_mixtures.display_results(results)
 ```
 ### Requirements
-`dcm` depends on `te` `scikit-survival`, 
+`dcm` depends on `tensorflow2` and `scikit-survival`, 
 
 Running baseline models for comparison requires `lifelines`, `pycox` and `dsm`
