@@ -1,6 +1,7 @@
 # Deep Cox Mixtures
 
-This repository contains code for the paper: 'Deep Cox Mixtures for Survival Regression'
+This repository contains code for the NeurIPS 2020, ML4H paper: 
+[Deep Cox Mixtures for Survival Regression](https://arxiv.org/abs/2101.06536)
 
 ### Usage
 ```
