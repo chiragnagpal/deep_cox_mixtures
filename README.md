@@ -6,11 +6,6 @@
 This repository contains code for the NeurIPS 2020, ML4H paper: 
 [Deep Cox Mixtures for Survival Regression](https://arxiv.org/abs/2101.06536)
 
-### Poster
-
-![ML4H 2020 Poster](http://www.cs.cmu.edu/~chiragn/papers/Deep_Cox_mixtures_poster.png)
-
-
 ### Usage
 ```
 from dcm import deep_cox_mixtures
