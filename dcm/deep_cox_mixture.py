@@ -44,6 +44,8 @@ import logging
 
 from sklearn.decomposition import PCA
 
+from lifelines import KaplanMeierFitter
+
 
 def store_model(dataset, model, trained_model, params):
   
@@ -111,6 +113,16 @@ def load_dataset(dataset, cv_folds, prot_att, fair_strategy, quantiles, dim_red=
   folds = np.array((list(range(cv_folds)) * (len(a) // cv_folds + 1))[:len(a)])
 
   quantiles = np.quantile(t[e == 1], quantiles)
+  quantiles = quantiles.tolist()
+
+  #kmf = KaplanMeierFitter().fit(t, e)
+
+#   quantiles_ = []
+#   for quant in quantiles:
+#       quantiles_.append(kmf.percentile(1-quant))
+#   quantiles = quantiles_
+
+  print(quantiles)
   
   if dim_red:
       logging.info("Running PCA, Please Stand by...")
@@ -119,7 +131,7 @@ def load_dataset(dataset, cv_folds, prot_att, fair_strategy, quantiles, dim_red=
   return (x, t, e, a), folds, quantiles
  
 def baseline_experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75),
-                        prot_att='race', groups=('black', 'white'),
+                        prot_att='race', groups=('other', 'white'),
                         model='cph', dim_red=False, fair_strategy=None, 
                         cv_folds=5, seed=100,
                         params=None, plot=True, store=False, adj='KM'):
@@ -133,30 +145,31 @@ def baseline_experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75),
   the Expected Calibration Error and ROC characteristic at various event time
   quantiles.
 
-  Args:
-    dataset:
+  Parameters
+  ----------
+  dataset: str
       a string that determines the dataset to run experiments on. 
       One of "FLCHAIN" or "SUPPORT".
-    quantiles:
+  quantiles: list
       a list of event time quantiles at which the models are to be evaluated.
-    prot_att:
+  prot_att: str
       a string that specifies the column in the dataset that is to be treated
       as a protected attribute.
-    groups:
+  groups: list
       a list of two groups on which the survival analysis models are to be
       evaluated vis a vis accuracy and fairness.
-    model:
+  model: str
       the choice of the baseline survival analysis model. One of "cph", "dcph",
       "dsm", "aft", "rsf"
-    fair_strategy:
+  fair_strategy: str
       string that specifies the fairness strategy to be used while running the
       experiment. One of None, "unawareness", "coupled".
-    cv_folds:
+  cv_folds: int
       int that determines the number of Cross Validation folds.
 
   Returns:
-    a Matplotlib figure with the ROC Curves and Reliability (Calibration) curves
-    at various event quantiles.
+      a Matplotlib figure with the ROC Curves and Reliability (Calibration) curves
+      at various event quantiles.
 
   """
 
@@ -194,7 +207,7 @@ def baseline_experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75),
   return results
 
 def experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75), prot_att='race',
-               groups=('black', 'white'), model='dcm', adj='KM',
+               groups=('other', 'white'), model='dcm', adj='KM',
                cv_folds=5, seed=100, hyperparams=None, plot=True, store=False):
 
   """Top level interface to train and evaluate proposed survival models.
@@ -206,38 +219,41 @@ def experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75), prot_att='race',
   outputs the Expected Calibration Error and ROC characteristic at various
   event time quantiles.
 
-  Args:
-    dataset:
+ 
+  Parameters
+  ----------
+  dataset: str
       a string that determines the dataset to run experiments on. 
       One of "FLCHAIN" or "SUPPORT".
-    quantiles:
+  quantiles: list
       a list of event time quantiles at which the models are to be evaluated.
-    prot_att:
+  prot_att: str
       a string that specifies the column in the dataset that is to be treated
       as a protected attribute.
-    groups:
+  groups: list
       a list of strings indicating groups on which the survival analysis 
       models are to be evaluated vis a vis discrimination and calibration.
-    model:
+  model: str
       the choice of the proposed survival analysis model. 
       currently supports only "dcm".
-    adj:
+  adj: str
       the choice of adjustment for the L1-ECE: one of 
       * 'IPCW': Inverse Propensity of Censoring Weighting.
       * 'KM': Kaplan-Meier.
-    cv_folds:
+  cv_folds: int
       int that determines the number of Cross Validation folds.
-    seed:
+  seed: int
       numpy random seed.
-    hyperparams:
+  hyperparams: dict
       a dict with hyperparams for the DCM model.
-    plot:
+  plot: bool
       binary flag to determine if the results are to be plotted.
-    store:
+  store: bool
       whether the models/results are to be stored to disk.
+  
   Returns:
-    a Matplotlib figure with the ROC Curves and Reliability (Calibration) curves
-    at various event quantiles.
+      a Matplotlib figure with the ROC Curves and Reliability (Calibration) curves
+      at various event quantiles.
 
   """
   np.random.seed(seed)
@@ -249,14 +265,15 @@ def experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75), prot_att='race',
   trained_model = models.train_model(x, t, e, a, folds, groups, params=hyperparams)
     
   if store:
-    store_model(dataset, model, trained_model, params)
+    store_model(dataset, model, trained_model, hyperparams)
+  
+  outputs = predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy)
   
   if plot:
-    outputs = predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy)
-
     results = plots.plot_results(outputs, x, e, t, a, folds, groups,
                        quantiles, strat='quantile', adj=adj)
-    return results
+    
+  return results
     
 
 def predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy):
@@ -314,7 +331,6 @@ def display_results(results):
       for group in groups:
         print("{: >8}".format(round(results[quant][i][group], 5)),  end="  |" )
 
-      
       i+=1
     print()
     print("".join(["-"]*11*4))
