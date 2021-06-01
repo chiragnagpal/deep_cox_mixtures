@@ -8,9 +8,9 @@ This repository contains code for the NeurIPS 2020, ML4H paper:
 
 ### Usage
 ```
-from dcm import deep_cox_mixtures
+from dcm import deep_cox_mixture
 results = deep_cox_mixture.experiment(dataset='SUPPORT', prot_att='race', groups=('white', 'other'))
-deep_cox_mixtures.display_results(results)
+deep_cox_mixture.display_results(results)
 ```
 ### Requirements
 `dcm` depends on `tensorflow2` and `scikit-survival`, 
