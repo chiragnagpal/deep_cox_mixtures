@@ -31,9 +31,9 @@ from dcm.calibration import calibration_curve
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 
-from skmetrics import brier_score
-from skmetrics import cumulative_dynamic_auc
-from skmetrics import concordance_index_ipcw
+from dcm.skmetrics import brier_score
+from dcm.skmetrics import cumulative_dynamic_auc
+from dcm.skmetrics import concordance_index_ipcw
 
 import numpy as np
 

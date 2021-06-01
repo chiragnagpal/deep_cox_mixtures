@@ -424,7 +424,9 @@ def test_step(model, x, t, e, a, breslow_splines, loss='q',typ='soft'):
 
 def train(model, xt, tt, et, at, xv, tv, ev, av, epochs=50,
           patience=2, vloss='q', bs=256, typ='soft', lr=1e-3,
-          use_posteriors=False, debug=False):
+          use_posteriors=False, debug=False, random_state=0):
+
+  tf.random.set_seed(random_state)
     
   logging.info("Running Monte-Carlo EM for: " + str(epochs) +
                " epochs; with a batch size of: "+ str(bs))

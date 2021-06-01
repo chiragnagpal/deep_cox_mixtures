@@ -40,7 +40,7 @@ import numpy as np
 import logging
 
 
-def train_model(x, t, e, a, folds, groups, params):
+def train_model(x, t, e, a, folds, groups, params, random_state=0):
   """The function used to train a DCM model.
 
   Trains and returns a proposed survival analysis model.
@@ -58,11 +58,15 @@ def train_model(x, t, e, a, folds, groups, params):
       a numpy vector of cv fold.
     groups:
       List of the demogrpahics to adjust for.
+    params:
+      a dictionary of hyperparameters to use. 
+    random_state:
+      random seed for the experiments.
   Returns:
     a trained survival analysis model.
 
   """
-  np.random.seed(0)
+  np.random.seed(random_state)
 
 
   fold_model = {}
@@ -101,7 +105,8 @@ def train_model(x, t, e, a, folds, groups, params):
                                  tf[~vidx], ef[~vidx], af[~vidx],
                                  xf[vidx], tf[vidx], ef[vidx],
                                  af[vidx], epochs=epochs, lr=lr, bs=bs,
-                                 use_posteriors=use_posteriors)
+                                 use_posteriors=use_posteriors,
+                                 random_state=random_state)
 
     if model == 'deep_cox_mixture':
       trained_model = dcmt.DeepCoxMixture(k, h)
@@ -109,7 +114,8 @@ def train_model(x, t, e, a, folds, groups, params):
                                  tf[~vidx], ef[~vidx], af[~vidx],
                                  xf[vidx], tf[vidx], ef[vidx],
                                  af[vidx], epochs=epochs, lr=lr, bs=bs,
-                                 use_posteriors=use_posteriors)
+                                 use_posteriors=use_posteriors,
+                                 random_state=random_state)
     
     if model == 'cox_mixture':
       trained_model = dcmt.CoxMixture(k)
@@ -117,7 +123,8 @@ def train_model(x, t, e, a, folds, groups, params):
                                  tf[~vidx], ef[~vidx], af[~vidx],
                                  xf[vidx], tf[vidx], ef[vidx],
                                  af[vidx], epochs=epochs, lr=lr, bs=bs,
-                                 use_posteriors=use_posteriors)
+                                 use_posteriors=use_posteriors,
+                                 random_state=random_state)
 
     fold_model[f] = copy.copy(trained_model)
      
