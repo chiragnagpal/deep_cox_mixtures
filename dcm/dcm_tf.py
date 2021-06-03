@@ -46,7 +46,7 @@ import logging
 tf.keras.backend.set_floatx('float32')
 dtype = tf.float32
 
-FLOAT_64 = True
+FLOAT_64 = False
 
 if FLOAT_64:
   tf.keras.backend.set_floatx('float64')
@@ -309,7 +309,7 @@ def vae_loss(model, x):
 
   return -tf.reduce_sum(logpx_z + logpz - logqz_x)
 
-def q_function(model, xb, tb, eb, posteriors, typ='soft'):
+def q_function(model, xb, tb, eb, posteriors, typ='hard'):
     
     if typ == 'hard':
         zb = get_hard_z(posteriors)

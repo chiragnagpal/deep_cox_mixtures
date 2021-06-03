@@ -113,7 +113,6 @@ def load_dataset(dataset, cv_folds, prot_att, fair_strategy, quantiles, dim_red=
   folds = np.array((list(range(cv_folds)) * (len(a) // cv_folds + 1))[:len(a)])
 
   quantiles = np.quantile(t[e == 1], quantiles)
-  quantiles = quantiles.tolist()
 
   #kmf = KaplanMeierFitter().fit(t, e)
 
@@ -134,7 +133,7 @@ def baseline_experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75),
                         prot_att='race', groups=('other', 'white'),
                         model='cph', dim_red=False, fair_strategy=None, 
                         cv_folds=5, seed=100,
-                        params=None, plot=True, store=False, adj='KM'):
+                        hyperparams=None, plot=True, store=False, adj='KM'):
 
   """Top level interface to train and evaluate a baseline survival model.
 
@@ -172,39 +171,48 @@ def baseline_experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75),
       at various event quantiles.
 
   """
-
-  np.random.seed(seed)
+  try:
+    np.random.seed(seed)
     
-  (x, t, e, a), folds, quantiles = load_dataset(dataset, 
-                                                cv_folds, 
-                                                prot_att, 
-                                                fair_strategy,
-                                                quantiles, 
-                                                dim_red )
+    (x, t, e, a), folds, quantiles = load_dataset(dataset, 
+                                                  cv_folds, 
+                                                  prot_att, 
+                                                  fair_strategy,
+                                                  quantiles, 
+                                                  dim_red )
 
-  if fair_strategy == 'coupled':
-    trained_model = {}
-    for grp in groups:
-      trained_model[grp] = baseline_models.train_model(x[a == grp],
-                                                       t[a == grp],
-                                                       e[a == grp],
-                                                       folds=folds[a == grp],
-                                                       model=model,
-                                                       params=params)
-  else:
-    trained_model = baseline_models.train_model(x, t, e, folds, model=model, params=params)
-    logging.info("All Folds Trained...")
-  if store:
-    logging.info("Storing Models...")
-    store_model(dataset, model, trained_model, params)
+    if fair_strategy == 'coupled':
+      trained_model = {}
+      for grp in groups:
+        trained_model[grp] = baseline_models.train_model(x[a == grp],
+                                                         t[a == grp],
+                                                         e[a == grp],
+                                                         folds=folds[a == grp],
+                                                         model=model,
+                                                         params=hyperparams,
+                                                         random_state=seed)
+    else:
+      trained_model = baseline_models.train_model(x, t, e, folds, model=model, params=hyperparams, 
+                                                  random_state=seed)
+      logging.info("All Folds Trained...")
+    if store:
+      logging.info("Storing Models...")
+      store_model(dataset, model, trained_model, hyperparams)
   
-  outputs = predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy)
+    outputs = predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy)
 
-  if plot:
-    results = plots.plot_results(outputs, x, e, t, a, folds,
-                       groups, quantiles, strat='quantile', adj=adj)
+    if plot:
+      results = plots.plot_results(outputs, x, e, t, a, folds,
+                                   groups, quantiles, strat='quantile', adj=adj)
+      return results
 
-  return results
+    else:
+      return outputs
+
+  except Exception as e:
+    print(e)
+    return None
+  
 
 def experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75), prot_att='race',
                groups=('other', 'white'), model='dcm', adj='KM',
@@ -256,25 +264,36 @@ def experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75), prot_att='race',
       at various event quantiles.
 
   """
-  np.random.seed(seed)
-
-  fair_strategy = None
-
-  (x, t, e, a), folds, quantiles = load_dataset(dataset, cv_folds, prot_att, fair_strategy, quantiles)
-
-  trained_model = models.train_model(x, t, e, a, folds, groups, params=hyperparams)
-    
-  if store:
-    store_model(dataset, model, trained_model, hyperparams)
   
-  outputs = predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy)
-  
-  if plot:
-    results = plots.plot_results(outputs, x, e, t, a, folds, groups,
-                       quantiles, strat='quantile', adj=adj)
+  try:
+        
+    np.random.seed(seed)
+
+    fair_strategy = None
+
+    (x, t, e, a), folds, quantiles = load_dataset(dataset, cv_folds, prot_att, fair_strategy, quantiles)
+
+    trained_model = models.train_model(x, t, e, a, folds, groups, params=hyperparams, random_state=seed)
+
+    if store:
+      store_model(dataset, model, trained_model, hyperparams)
+
+    outputs = predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy)
+
+    if plot:
+      results = plots.plot_results(outputs, x, e, t, a, folds, groups,
+                           quantiles, strat='quantile', adj=adj)
+      return results
+
+    else:
+      return outputs
     
-  return results
-    
+  except Exception as e:
+        
+    print(e)
+    return None
+        
+
 
 def predict(trained_model, model, x, t, e, a, folds, quantiles, fair_strategy):
     

@@ -94,8 +94,8 @@ def _train_cph(x, t, e, folds, params):
 
   return fold_model
 
-def _train_cph_sgd(x, t, e, folds, params):
-  return _train_dcph(x, t, e, folds, params)
+def _train_cph_sgd(x, t, e, folds, params, random_state=0):
+  return _train_dcph(x, t, e, folds, params, random_state)
 
 
 def _train_aft(x, t, e, folds, params):
@@ -114,7 +114,7 @@ def _train_aft(x, t, e, folds, params):
     fold_model[f] = copy.deepcopy(aft)
   return fold_model
 
-def _train_dht(x, t, e, folds, params):
+def _train_dht(x, t, e, folds, params, random_state=0):
 
   """Helper Function to train a deep-hit model (van der schaar et. al).
 
@@ -133,14 +133,16 @@ def _train_dht(x, t, e, folds, params):
     Trained pycox.DeepHitSingle model.
 
   """
-  if params is None:
-    num_nodes = [100,100]
-    lr = 1e-3
-    bs = 128
-  else:
-    num_nodes = params['num_nodes']
-    lr =  params['lr'] 
-    bs = params['bs']
+
+  import torch
+    
+  torch.manual_seed(random_state)
+  np.random.seed(random_state)
+
+  num_nodes = params.get('num_nodes', [100, 100])
+  lr = params.get('lr', 1e-3)
+  bs = params.get('bs', 128)
+  epochs = params.get('epochs', 50)
     
   x = x.astype('float32')
   t = t.astype('float32')
@@ -201,7 +203,7 @@ def _train_dht(x, t, e, folds, params):
 
     batch_size = bs
     model.optimizer.set_lr(lr)
-    epochs = 10
+    #epochs = 20
     callbacks = [ttup.callbacks.EarlyStopping()]
 
     model.fit(
@@ -218,7 +220,7 @@ def _train_dht(x, t, e, folds, params):
   return fold_model
 
 
-def _train_dcph(x, t, e, folds, params):
+def _train_dcph(x, t, e, folds, params, random_state=0):
 
   """Helper Function to train a deep-cox model (DeepSurv, Faraggi-Simon).
 
@@ -237,16 +239,16 @@ def _train_dcph(x, t, e, folds, params):
     Trained pycox.CoxPH model.
 
   """
-  if params is None:
-    num_nodes = [100,100]
-    lr = 1e-3
-    bs = 128
-  
-  else:
+
+  import torch
     
-    num_nodes = params['num_nodes']
-    lr =  params['lr'] 
-    bs = params['bs']
+  torch.manual_seed(10)
+  np.random.seed(random_state)
+    
+  num_nodes = params.get('num_nodes', [100,100])
+  lr = params.get('lr', 1e-3)
+  bs = params.get('bs', 128)
+  epochs = params.get('epochs', 50)
     
   x = x.astype('float32')
   t = t.astype('float32')
@@ -292,7 +294,7 @@ def _train_dcph(x, t, e, folds, params):
 
     batch_size = bs
     model.optimizer.set_lr(lr)
-    epochs = 40
+    epochs = 50
     callbacks = [ttup.callbacks.EarlyStopping()]
 
     model.fit(
@@ -311,7 +313,7 @@ def _train_dcph(x, t, e, folds, params):
   return fold_model
 
 
-def _train_dsm(x, t, e, folds, params):
+def _train_dsm(x, t, e, folds, params, random_state=0):
 
   """Helper Function to train a deep survival machines model.
 
@@ -330,19 +332,19 @@ def _train_dsm(x, t, e, folds, params):
     Trained dsm.DeepSurvivalMachines model.
 
   """
-  if params is None:
-    dist = 'Weibull'
-    mlptyp, HIDDEN = 2, [100]
-    lr = 1e-3
-    bs = 128
-    k = 4
-    
-  else:
-    dist = params['dist']
-    mlptyp, HIDDEN = params['HIDDEN']
-    lr = params['lr']
-    bs = params['bs']
-    k = params['k']
+  
+  import torch
+
+  torch.manual_seed(random_state) 
+  np.random.seed(random_state)
+
+
+  dist = params.get('dist', 'Weibull')
+  mlptyp, HIDDEN = params.get('HIDDEN', (2, [100]))
+  lr = params.get('lr', 1e-3)
+  bs = params.get('bs', 128)
+  k = params.get('k', 4)
+  epochs = params.get('epochs', 50)
     
   xt = torch.from_numpy(x).double()
   tt = torch.from_numpy(t).double()
@@ -381,7 +383,7 @@ def _train_dsm(x, t, e, folds, params):
         xf[vidx],
         tf[vidx],
         ef[vidx],
-        n_iter=75,
+        n_iter=epochs,
         lr=lr,
         bs=bs,
         alpha=1.0)
@@ -391,7 +393,7 @@ def _train_dsm(x, t, e, folds, params):
   return fold_model
 
 
-def _train_rsf(x, t, e, folds, params):
+def _train_rsf(x, t, e, folds, params, random_state=0):
     
   if params is None:
         
@@ -414,13 +416,13 @@ def _train_rsf(x, t, e, folds, params):
   for f in set(folds):
     print ("Starting Fold:", f)
     rsf = RandomSurvivalForestModel(num_trees = num_trees)
-    rsf.fit(x[folds != f], t[folds != f], e[folds != f], max_depth=max_depth)
+    rsf.fit(x[folds != f], t[folds != f], e[folds != f], max_depth=max_depth, seed=random_state)
     fold_model[f] = copy.copy(rsf)
     print ("Trained Fold:", f)
   return fold_model
 
 
-def train_model(x, t, e, folds, model='cph', params=None):
+def train_model(x, t, e, folds, model='cph', params=None, random_state=0):
   """The function used to train a survival analysis model.
 
   Trains and returns a trained baseline survival analysis model.
@@ -444,7 +446,7 @@ def train_model(x, t, e, folds, model='cph', params=None):
   print('Training ', model, ' model... Please be Patient...!')
 
   if model == 'dcph':
-    fold_model = _train_dcph(x, t, e, folds, params)
+    fold_model = _train_dcph(x, t, e, folds, params, random_state)
 
   if model == 'cph':
     fold_model = _train_cph(x, t, e, folds, params)
@@ -456,13 +458,13 @@ def train_model(x, t, e, folds, model='cph', params=None):
     fold_model = _train_aft(x, t, e, folds, params)
 
   if model == 'dsm':
-    fold_model = _train_dsm(x, t, e, folds, params)
+    fold_model = _train_dsm(x, t, e, folds, params, random_state)
 
   if model == 'rsf':
-    fold_model = _train_rsf(x, t, e, folds, params)
+    fold_model = _train_rsf(x, t, e, folds, params, random_state)
     
   if model == 'dht':
-    fold_model = _train_dht(x, t, e, folds, params)
+    fold_model = _train_dht(x, t, e, folds, params, random_state)
 
   return fold_model
 
