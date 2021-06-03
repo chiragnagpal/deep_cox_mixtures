@@ -46,6 +46,7 @@ from lifelines import WeibullAFTFitter
 
 import numpy as np
 import pandas as pd
+import random
 
 from pycox.models import CoxPH
 from pycox.models import DeepHitSingle
@@ -335,9 +336,9 @@ def _train_dsm(x, t, e, folds, params, random_state=0):
   
   import torch
 
+  random.seed(random_state)
   torch.manual_seed(random_state) 
   np.random.seed(random_state)
-
 
   dist = params.get('dist', 'Weibull')
   mlptyp, HIDDEN = params.get('HIDDEN', (2, [100]))
