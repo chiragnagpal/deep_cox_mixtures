@@ -39,7 +39,7 @@ import numpy as np
 import pandas as pd
 
 import os
-
+import random
 import logging
 
 from sklearn.decomposition import PCA
@@ -266,7 +266,8 @@ def experiment(dataset='SUPPORT', quantiles=(0.25, 0.5, 0.75), prot_att='race',
   """
   
   try:
-        
+    
+    random.seed(seed)
     np.random.seed(seed)
 
     fair_strategy = None
