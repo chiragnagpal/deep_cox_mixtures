@@ -424,7 +424,8 @@ def test_step(model, x, t, e, a, breslow_splines, loss='q',typ='soft'):
 
 def train(model, xt, tt, et, at, xv, tv, ev, av, epochs=50,
           patience=2, vloss='q', bs=256, typ='soft', lr=1e-3,
-          use_posteriors=False, debug=False, random_state=0):
+          use_posteriors=False, debug=False, random_state=0,
+          return_losses=False):
 
   tf.random.set_seed(random_state)
     
@@ -438,13 +439,17 @@ def train(model, xt, tt, et, at, xv, tv, ev, av, epochs=50,
     
   breslow_splines = None
 
+  losses = []
+
   for epoch in tqdm(range(epochs)):
 
     breslow_splines = train_step(model, xt, tt, et, at, breslow_splines, 
                                  optimizer, bs=bs, seed=epoch, typ=typ,
                                  use_posteriors=use_posteriors)
-    valcn = test_step(model, xv, tv, ev, av, breslow_splines, loss=vloss,typ=typ)
-        
+    valcn = test_step(model, xv, tv, ev, av, breslow_splines, loss=vloss, typ=typ)
+    
+    losses.append(valcn)
+    
     if epoch % 1 == 0:
       if debug:
         print(patience_, epoch, valcn)
@@ -458,8 +463,11 @@ def train(model, xt, tt, et, at, xv, tv, ev, av, epochs=50,
       return (model, breslow_splines)
 
     valc = valcn
-
-  return (model, breslow_splines)
+    
+  if return_losses: 
+    return (model, breslow_splines), losses
+  else:
+    return (model, breslow_splines)
 
 def predict_scores(model, x, t ):
     
