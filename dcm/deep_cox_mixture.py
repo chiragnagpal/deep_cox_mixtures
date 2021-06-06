@@ -114,13 +114,6 @@ def load_dataset(dataset, cv_folds, prot_att, fair_strategy, quantiles, dim_red=
 
   quantiles = np.quantile(t[e == 1], quantiles)
 
-  #kmf = KaplanMeierFitter().fit(t, e)
-
-#   quantiles_ = []
-#   for quant in quantiles:
-#       quantiles_.append(kmf.percentile(1-quant))
-#   quantiles = quantiles_
-
   print(quantiles)
   
   if dim_red:
