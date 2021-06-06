@@ -6,7 +6,24 @@
 This repository contains code for the NeurIPS 2020, ML4H paper: 
 [Deep Cox Mixtures for Survival Regression](https://arxiv.org/abs/2101.06536)
 
+### Installation
+
+To download and run Deep Cox Mixtures:
+
+```console
+foo@bar:~$ git clone https://github.com/chiragnagpal/deep_cox_mixtures.git
+foo@bar:~$ cd deep_cox_mixtures
+foo@bar:~$ pip install -r requirements.txt
+```
+
+
 ### Usage
+
+To run DCM on a standard survival analysis dataset like SUPPORT, please see the following
+example notebook:
+
+
+To run the original experiments from the paper, please use: 
 ```
 from dcm import deep_cox_mixture
 results = deep_cox_mixture.experiment(dataset='SUPPORT', prot_att='race', groups=('white', 'other'))
