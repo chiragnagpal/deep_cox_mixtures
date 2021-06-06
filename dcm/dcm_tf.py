@@ -378,12 +378,12 @@ def get_survival_risk(model, x, breslow_splines, t):
     psurv = np.array(psurv).T
     return psurv
 
-def train_step(model, x, t, e, a, breslow_splines, optimizer,
+def train_step(model, x, t, e, breslow_splines, optimizer,
                bs=256, seed=100, typ='soft', use_posteriors=False):
     
   from sklearn.utils import shuffle
   
-  x, t, e, a = shuffle(x, t, e, a, random_state=seed)
+  x, t, e = shuffle(x, t, e, random_state=seed)
   n = x.shape[0]
 
   batches = (n // bs) + 1
@@ -394,7 +394,6 @@ def train_step(model, x, t, e, a, breslow_splines, optimizer,
     xb = x[i*bs:(i+1)*bs]
     tb = t[i*bs:(i+1)*bs]
     eb = e[i*bs:(i+1)*bs]
-    ab = a[i*bs:(i+1)*bs]
     # E-Step !!!
     posteriors = e_step(model, breslow_splines, xb, tb, eb)
     # M-Step !!!
@@ -414,7 +413,7 @@ def train_step(model, x, t, e, a, breslow_splines, optimizer,
   #print (epoch_loss/n)
   return breslow_splines
 
-def test_step(model, x, t, e, a, breslow_splines, loss='q',typ='soft'):    
+def test_step(model, x, t, e, breslow_splines, loss='q',typ='soft'):    
   
   if loss == 'q':
     posteriors = e_step(model, breslow_splines, x, t, e)
@@ -422,7 +421,7 @@ def test_step(model, x, t, e, a, breslow_splines, loss='q',typ='soft'):
 
   return float(loss/x.shape[0])
 
-def train(model, xt, tt, et, at, xv, tv, ev, av, epochs=50,
+def train(model, xt, tt, et, xv, tv, ev, epochs=50,
           patience=2, vloss='q', bs=256, typ='soft', lr=1e-3,
           use_posteriors=False, debug=False, random_state=0,
           return_losses=False):
@@ -443,10 +442,10 @@ def train(model, xt, tt, et, at, xv, tv, ev, av, epochs=50,
 
   for epoch in tqdm(range(epochs)):
 
-    breslow_splines = train_step(model, xt, tt, et, at, breslow_splines, 
+    breslow_splines = train_step(model, xt, tt, et, breslow_splines, 
                                  optimizer, bs=bs, seed=epoch, typ=typ,
                                  use_posteriors=use_posteriors)
-    valcn = test_step(model, xv, tv, ev, av, breslow_splines, loss=vloss, typ=typ)
+    valcn = test_step(model, xv, tv, ev, breslow_splines, loss=vloss, typ=typ)
     
     losses.append(valcn)
     
@@ -460,8 +459,11 @@ def train(model, xt, tt, et, at, xv, tv, ev, av, epochs=50,
       patience_ = 0
 
     if patience_ == patience:
-      return (model, breslow_splines)
-
+        if return_losses: 
+            return (model, breslow_splines), losses
+        else:
+            return (model, breslow_splines)
+        
     valc = valcn
     
   if return_losses: 
