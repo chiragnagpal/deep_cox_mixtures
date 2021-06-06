@@ -44,7 +44,7 @@ Running baseline models for comparison requires `lifelines`, `pycox` and `dsm`
 
 ### Citing
 
-Please cite using the following bib entry:
+Please cite using the following bib-entry:
 
 ```
 @article{nagpal2021dcm,
