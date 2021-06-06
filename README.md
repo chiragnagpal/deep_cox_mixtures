@@ -6,6 +6,22 @@
 This repository contains code for the NeurIPS 2020, ML4H paper: 
 [Deep Cox Mixtures for Survival Regression](https://arxiv.org/abs/2101.06536)
 
+### Citing
+
+Please cite using the following bib entry:
+
+```
+@article{nagpal2021dcm,
+  title={Deep Cox mixtures for survival regression},
+  author={Nagpal, Chirag and Yadlowsky, Steve and Rostamzadeh, Negar and Heller, Katherine},
+  journal={Machine Learning for Healthcare Conference},
+  year={2021}
+  organization={PMLR}
+}
+```
+
+
+
 ### Installation
 
 To download and run Deep Cox Mixtures:
