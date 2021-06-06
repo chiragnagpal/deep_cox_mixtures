@@ -3,7 +3,7 @@
 
 #### _<sup>1</sup>Google Brain Team_, _<sup>2</sup>Carnegie Mellon University_
 
-This repository contains code for the NeurIPS 2020, ML4H paper: 
+This repository contains code for the MLHC 2021 paper: 
 [Deep Cox Mixtures for Survival Regression](https://arxiv.org/abs/2101.06536)
 
 
