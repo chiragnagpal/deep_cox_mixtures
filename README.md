@@ -22,6 +22,8 @@ foo@bar:~$ pip install -r requirements.txt
 To run DCM on a standard survival analysis dataset like SUPPORT, please see the following
 example notebook:
 
+1. [Deep Cox Mixtures on the SUPPORT Dataset](https://nbviewer.jupyter.org/github/chiragnagpal/deep_cox_mixtures/blob/master/DCM%20on%20SUPPORT%20Dataset.ipynb)
+
 
 To run the original experiments from the paper, please use: 
 ```
