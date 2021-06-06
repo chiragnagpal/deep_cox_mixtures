@@ -37,24 +37,9 @@ dcm.deep_cox_mixture.baseline_experiment
 
 import copy
 
-from deep_survival_machines import dsm
-from deep_survival_machines import dsm_loss
-from deep_survival_machines import dsm_utilites
-
-from lifelines import CoxPHFitter
-from lifelines import WeibullAFTFitter
-
 import numpy as np
 import pandas as pd
 import random
-
-from pycox.models import CoxPH
-from pycox.models import DeepHitSingle
-
-from pysurvival.models.survival_forest import RandomSurvivalForestModel
-
-import torch
-import torchtuples as ttup
 
 
 def convert_to_data_frame(x, t, e):
@@ -80,7 +65,9 @@ def structure_for_eval_(t, e):
 
 
 def _train_cph(x, t, e, folds, params):
-    
+  
+  from lifelines import CoxPHFitter
+
   if params is None:
     l2 = 1e-3
   else:
@@ -100,7 +87,9 @@ def _train_cph_sgd(x, t, e, folds, params, random_state=0):
 
 
 def _train_aft(x, t, e, folds, params):
-    
+  
+  from lifelines import WeibullAFTFitter
+
   if params is None:
     l2 = 1e-3
   else:
@@ -136,7 +125,10 @@ def _train_dht(x, t, e, folds, params, random_state=0):
   """
 
   import torch
-    
+  import torchtuples as ttup
+
+  from pycox.models import DeepHitSingle
+  
   torch.manual_seed(random_state)
   np.random.seed(random_state)
 
@@ -242,7 +234,10 @@ def _train_dcph(x, t, e, folds, params, random_state=0):
   """
 
   import torch
-    
+  import torchtuples as ttup
+
+  from pycox.models import CoxPH
+  
   torch.manual_seed(10)
   np.random.seed(random_state)
     
@@ -336,6 +331,10 @@ def _train_dsm(x, t, e, folds, params, random_state=0):
   
   import torch
 
+  from deep_survival_machines import dsm
+  from deep_survival_machines import dsm_loss
+  from deep_survival_machines import dsm_utilites
+
   random.seed(random_state)
   torch.manual_seed(random_state) 
   np.random.seed(random_state)
@@ -395,7 +394,9 @@ def _train_dsm(x, t, e, folds, params, random_state=0):
 
 
 def _train_rsf(x, t, e, folds, params, random_state=0):
-    
+  
+  from pysurvival.models.survival_forest import RandomSurvivalForestModel
+
   if params is None:
         
     num_trees = 50
@@ -526,21 +527,15 @@ def _predict_dht(trained_model, x, quant, folds):
     scores_ = trained_model[fold].predict_surv_df(x[folds == fold]).T
     times = scores_.columns.values
     dm = np.argmin(np.abs(quant - times))
-#     if times[dm]>quant:
-#         scores[fold] = (scores_[times[dm]].values+scores_[times[dm-1]].values)/2
-#     else: 
-#         scores[fold] = (scores_[times[dm+1]].values+scores_[times[dm]].values)/2
 
     scores[fold] = scores_[times[dm]]
 
   return scores
 
 def _predict_cph_sgd(trained_model, x, quant, folds):
-    
   return _predict_dcph(trained_model, x, quant, folds)
 
 def _predict_dcph(trained_model, x, quant, folds):
-    
   return _predict_dht(trained_model, x, quant, folds)
 
 
