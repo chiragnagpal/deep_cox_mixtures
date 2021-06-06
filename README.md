@@ -3,6 +3,10 @@
 
 #### _<sup>1</sup>Google Brain Team_, _<sup>2</sup>Carnegie Mellon University_
 
+
+<img width=100% align="center" src=https://ndownloader.figshare.com/files/28316535>
+
+
 This repository contains code for the MLHC 2021 paper: 
 [Deep Cox Mixtures for Survival Regression](https://arxiv.org/abs/2101.06536)
 
