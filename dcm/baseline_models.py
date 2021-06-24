@@ -397,28 +397,22 @@ def _train_rsf(x, t, e, folds, params, random_state=0):
   
   from pysurvival.models.survival_forest import RandomSurvivalForestModel
 
-  if params is None:
-        
-    num_trees = 50
-    max_depth = 4
+  if params is None:        
+    params = {}
     
-  else:
-    
-    num_trees = params['num_trees']
-    max_depth = params['max_depth']
-    
-  xt = torch.from_numpy(x).double()
-  tt = torch.from_numpy(t).double()
-  et = torch.from_numpy(e).double()
-
-  d = x.shape[1]
+  num_trees = params.get('num_trees',50)
+  max_depth = params.get('max_depth', 5)
+  min_node = params.get('min_node_split', 10)
+  max_feat = params.get('max_feat', 'all')
 
   fold_model = {}
 
   for f in set(folds):
     print ("Starting Fold:", f)
     rsf = RandomSurvivalForestModel(num_trees = num_trees)
-    rsf.fit(x[folds != f], t[folds != f], e[folds != f], max_depth=max_depth, seed=random_state)
+    rsf.fit(x[folds != f], t[folds != f], e[folds != f], max_depth=max_depth,
+            sample_size_pct=1.0, max_features=max_feat, min_node_size=min_node, num_threads=10,
+            seed=random_state)
     fold_model[f] = copy.copy(rsf)
     print ("Trained Fold:", f)
   return fold_model
