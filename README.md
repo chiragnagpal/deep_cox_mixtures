@@ -31,7 +31,7 @@ example notebook:
 
 
 To run the original experiments from the paper, please use: 
-```
+```python
 from dcm import deep_cox_mixture
 results = deep_cox_mixture.experiment(dataset='SUPPORT', prot_att='race', groups=('white', 'other'))
 deep_cox_mixture.display_results(results)
