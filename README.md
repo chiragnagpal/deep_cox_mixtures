@@ -46,7 +46,7 @@ Running baseline models for comparison requires `lifelines`, `pycox` and `dsm`
 
 Please cite using the following bib-entry:
 
-```
+```json
 @article{nagpal2021dcm,
   title={Deep Cox mixtures for survival regression},
   author={Nagpal, Chirag and Yadlowsky, Steve and Rostamzadeh, Negar and Heller, Katherine},
