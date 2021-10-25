@@ -4,6 +4,15 @@
 #### _<sup>1</sup>Google Brain Team_, _<sup>2</sup>Carnegie Mellon University_
 
 
+---
+⚠️❗NOTE❗⚠️
+DCM now has a `pytorch` implementation here:
+
+https://autonlab.github.io/DeepSurvivalMachines/contrib/#deep-cox-mixtures
+
+---
+
+
 <img width=100% align="center" src=https://ndownloader.figshare.com/files/28316535>
 
 
