@@ -5,7 +5,7 @@
 
 
 ---
-⚠️❗NOTE❗⚠️
+⚠️❗**NOTE**❗⚠️
 DCM now has a `pytorch` implementation here:
 
 https://autonlab.github.io/DeepSurvivalMachines/contrib/#deep-cox-mixtures
