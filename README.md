@@ -15,8 +15,8 @@ https://autonlab.github.io/DeepSurvivalMachines/contrib/#deep-cox-mixtures
 
 <img width=100% align="center" src=https://ndownloader.figshare.com/files/28316535>
 
-
 This repository contains code for the MLHC 2021 paper: 
+
 [Deep Cox Mixtures for Survival Regression](https://arxiv.org/abs/2101.06536)
 
 
