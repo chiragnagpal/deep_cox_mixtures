@@ -5,13 +5,13 @@
 
 
 ---
-🔴 ⚠️ ⚠️ ⚠️ ❗❗❗**NOTE**❗❗❗ ⚠️ ⚠️ ⚠️ 🔴
-
-***Deep Cox Mixtures*** **now has a more stable `pytorch` implementation here**:
-
-https://autonlab.github.io/DeepSurvivalMachines/contrib/#deep-cox-mixtures
-
-**`tensorflow` version is no longer supported.** ***Please use the version above.*** 
+> **❗⚠️❗⚠️❗⚠️❗⚠️❗ IMPORTANT NOTE ❗⚠️❗⚠️❗⚠️❗⚠️❗⚠️❗**
+>
+> ***Deep Cox Mixtures*** **now has a more stable `pytorch` implementation here**:
+>
+> https://autonlab.github.io/DeepSurvivalMachines/contrib/#deep-cox-mixtures
+>
+> **`tensorflow` version is no longer supported.** ***Please use the version above.*** 
 
 ---
 
