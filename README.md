@@ -4,10 +4,22 @@
 #### _<sup>1</sup>Google Brain Team_, _<sup>2</sup>Carnegie Mellon University_
 
 
+---
+> **❗⚠️❗⚠️❗⚠️❗⚠️❗ IMPORTANT NOTE ❗⚠️❗⚠️❗⚠️❗⚠️❗⚠️❗**
+>
+> ***Deep Cox Mixtures*** **now has a more stable `pytorch` implementation here**:
+>
+## https://autonlab.github.io/auton-survival/models/dcm/
+>
+> **`tensorflow` version is no longer supported.** ***Please use the version above.*** 
+
+---
+
+
 <img width=100% align="center" src=https://ndownloader.figshare.com/files/28316535>
 
-
 This repository contains code for the MLHC 2021 paper: 
+
 [Deep Cox Mixtures for Survival Regression](https://arxiv.org/abs/2101.06536)
 
 
@@ -31,7 +43,7 @@ example notebook:
 
 
 To run the original experiments from the paper, please use: 
-```
+```python
 from dcm import deep_cox_mixture
 results = deep_cox_mixture.experiment(dataset='SUPPORT', prot_att='race', groups=('white', 'other'))
 deep_cox_mixture.display_results(results)
@@ -46,7 +58,7 @@ Running baseline models for comparison requires `lifelines`, `pycox` and `dsm`
 
 Please cite using the following bib-entry:
 
-```
+```python
 @article{nagpal2021dcm,
   title={Deep Cox mixtures for survival regression},
   author={Nagpal, Chirag and Yadlowsky, Steve and Rostamzadeh, Negar and Heller, Katherine},
