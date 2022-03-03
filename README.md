@@ -12,6 +12,7 @@
 ## https://autonlab.github.io/auton-survival/models/dcm/
 >
 > **`tensorflow` version is no longer supported.** ***Please use the version above.*** 
+> The repository is kept for legacy purposes.
 
 ---
 
